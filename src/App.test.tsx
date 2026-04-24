@@ -49,12 +49,31 @@ describe('FAQ', () => {
     const cloudQuestion = within(section).getByRole('button', {
       name: /chmury/i,
     })
+    const cloudPanel = section.querySelector('#faq-panel-1')
+    expect(cloudPanel).toBeTruthy()
 
-    expect(within(section).queryByText(/Backupy wykonujesz ręcznie/i)).not.toBeInTheDocument()
+    expect(cloudQuestion).toHaveAttribute('aria-expanded', 'false')
+    expect(cloudPanel).not.toBeVisible()
 
     await user.click(cloudQuestion)
 
-    expect(within(section).getByText(/Backupy wykonujesz ręcznie/i)).toBeVisible()
+    expect(cloudQuestion).toHaveAttribute('aria-expanded', 'true')
+    expect(cloudPanel).toBeVisible()
+    expect(cloudPanel && within(cloudPanel as HTMLElement).getByText(/Backupy wykonujesz ręcznie/i)).toBeVisible()
+  })
+
+  it('associates each trigger with a labelled region', () => {
+    render(<App />)
+    const section = screen.getByTestId('section-faq')
+    const triggers = within(section).getAllByRole('button')
+    expect(triggers.length).toBe(6)
+    for (const trigger of triggers) {
+      expect(trigger).toHaveAttribute('aria-controls')
+      const id = trigger.getAttribute('aria-controls')
+      const panel = id && document.getElementById(id)
+      expect(panel).toBeTruthy()
+      expect(panel).toHaveAttribute('role', 'region')
+    }
   })
 })
 
